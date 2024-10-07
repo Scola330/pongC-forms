@@ -31,8 +31,6 @@ namespace pong
             ballY = (this.ClientSize.Height - BallSize) / 2;
             ResetBall();
 
-            paddleHitSound = new SoundPlayer("beepsound.wav");
-            scoreSound = new SoundPlayer("beepsound.wav");
         }
         private bool moveUp;
         private bool moveDown;
@@ -74,13 +72,11 @@ namespace pong
             if (ballX <= 0)
             {
                 opponentScore++;
-                scoreSound.Play();
                 ResetBall();
             }
             if (ballX >= this.ClientSize.Width - BallSize)
             {
                 playerScore++;
-                scoreSound.Play();
                 ResetBall();
             }
             UpdateOpponentPaddlePosition();
@@ -105,31 +101,26 @@ namespace pong
             if (ballY <= 0 || ballY >= this.ClientSize.Height - BallSize)
             {
                 ballSpeedY = -ballSpeedY;
-                paddleHitSound.Play();
             }
             if (ballX <= PaddleOffset + PaddleWidth && ballY + BallSize >= playerPaddleY && ballY <= playerPaddleY + PaddleHeight)
             {
                 ballSpeedX = -ballSpeedX;
-                paddleHitSound.Play();
             }
 
             if (ballX >= this.ClientSize.Width - PaddleOffset - PaddleWidth - BallSize && ballY + BallSize >= opponentPaddleY && ballY <= opponentPaddleY + PaddleHeight)
             {
                 ballSpeedX = -ballSpeedX;
-                paddleHitSound.Play();
             }
 
             if (ballX <= 0)
             {
                 opponentScore++;
-                scoreSound.Play();
                 ResetBall();
             }
 
             if (ballX >= this.ClientSize.Width - BallSize)
             {
                 playerScore++;
-                scoreSound.Play();
                 ResetBall();
             }
 
@@ -144,32 +135,27 @@ namespace pong
             if (ballY <= 0 || ballY >= this.ClientSize.Height - BallSize)
             {
                 ballSpeedY = -ballSpeedY;
-                paddleHitSound.Play();
             }
 
             if (ballX <= PaddleOffset + PaddleWidth && ballY + BallSize >= playerPaddleY && ballY <= playerPaddleY + PaddleHeight)
             {
                 ballSpeedX = -ballSpeedX;
-                paddleHitSound.Play();
             }
 
             if (ballX >= this.ClientSize.Width - PaddleOffset - PaddleWidth - BallSize && ballY + BallSize >= opponentPaddleY && ballY <= opponentPaddleY + PaddleHeight)
             {
                 ballSpeedX = -ballSpeedX;
-                paddleHitSound.Play();
             }
 
             if (ballX <= 0)
             {
                 opponentScore++;
-                scoreSound.Play();
                 ResetBall();
             }
 
             if (ballX >= this.ClientSize.Width - BallSize)
             {
                 playerScore++;
-                scoreSound.Play();
                 ResetBall();
             }
 
