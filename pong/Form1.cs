@@ -31,8 +31,8 @@ namespace pong
             ballY = (this.ClientSize.Height - BallSize) / 2;
             ResetBall();
 
-            paddleHitSound = new SoundPlayer("pong\\beepsound.wav");
-            scoreSound = new SoundPlayer("pong\\beepsound.wav");
+            paddleHitSound = new SoundPlayer("beepsound.wav");
+            scoreSound = new SoundPlayer("beepsound.wav");
         }
         private bool moveUp;
         private bool moveDown;
