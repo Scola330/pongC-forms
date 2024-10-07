@@ -144,27 +144,32 @@ namespace pong
             if (ballY <= 0 || ballY >= this.ClientSize.Height - BallSize)
             {
                 ballSpeedY = -ballSpeedY;
+                paddleHitSound.Play();
             }
 
             if (ballX <= PaddleOffset + PaddleWidth && ballY + BallSize >= playerPaddleY && ballY <= playerPaddleY + PaddleHeight)
             {
                 ballSpeedX = -ballSpeedX;
+                paddleHitSound.Play();
             }
 
             if (ballX >= this.ClientSize.Width - PaddleOffset - PaddleWidth - BallSize && ballY + BallSize >= opponentPaddleY && ballY <= opponentPaddleY + PaddleHeight)
             {
                 ballSpeedX = -ballSpeedX;
+                paddleHitSound.Play();
             }
 
             if (ballX <= 0)
             {
                 opponentScore++;
+                scoreSound.Play();
                 ResetBall();
             }
 
             if (ballX >= this.ClientSize.Width - BallSize)
             {
                 playerScore++;
+                scoreSound.Play();
                 ResetBall();
             }
 
