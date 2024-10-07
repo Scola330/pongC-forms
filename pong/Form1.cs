@@ -17,8 +17,6 @@ namespace pong
         private int playerScore = 0;
         private int opponentScore = 0;
 
-        private SoundPlayer paddleHitSound;
-        private SoundPlayer scoreSound;
         public Form1()
         {
             InitializeComponent();
