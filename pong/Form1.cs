@@ -190,8 +190,11 @@ namespace pong
         {
             using (Brush brush = new SolidBrush(Color.White))
             {
-                g.DrawString($"PLAYER: {playerScore}", this.Font, brush, 10, 10);
-                g.DrawString($"COMPUTER: {opponentScore}", this.Font, brush, this.ClientSize.Width - 100, 10);
+                using (Font dosFont = new Font("Consolas", 12, FontStyle.Bold))
+                {
+                    g.DrawString($"PLAYER: {playerScore}", dosFont, brush, 10, 10);
+                    g.DrawString($"COMPUTER: {opponentScore}", dosFont, brush, this.ClientSize.Width - 150, 10);
+                }
             }
         }
 
