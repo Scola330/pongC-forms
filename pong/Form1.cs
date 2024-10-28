@@ -331,7 +331,7 @@ namespace pong
             }
 
             // Dodaj nowy wynik z ustawieniami
-            results.Add($"Gra {totalGames}:");
+            results.Add($"Gra {totalGames + 1}:");
             results.Add($"Poziom trudnoœci: {difficultyLevel}");
             results.Add($"Prêdkoœæ paletki gracza: {playerPaddleSpeed}");
             results.Add($"Prêdkoœæ paletki przeciwnika: {opponentPaddleSpeed}");
