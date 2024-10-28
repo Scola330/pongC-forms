@@ -1,3 +1,4 @@
+using System.Drawing.Text;
 using System.Media;
 
 namespace pong
@@ -10,12 +11,14 @@ namespace pong
         private const int BallSize = 10;
         private int playerPaddleY;
         private int opponentPaddleY;
-        private int playerPaddleSpeed = 5;
-        private int opponentPaddleSpeed = 5;
+        private int playerPaddleSpeed;
+        private int opponentPaddleSpeed;
         private int ballX, ballY;
-        private int ballSpeedX = 4, ballSpeedY = 4;
+        private int ballSpeedX, ballSpeedY;
         private int playerScore = 0;
         private int opponentScore = 0;
+        private int totalGames = 0;
+        private string difficultyLevel = "Normal"; // Domyœlny poziom trudnoœci
 
         public Form1()
         {
@@ -23,15 +26,106 @@ namespace pong
             this.DoubleBuffered = true;
             this.KeyDown += new KeyEventHandler(Form1_KeyDown);
             this.KeyUp += new KeyEventHandler(Form1_KeyUp);
+            this.KeyPreview = true; // Dodaj tê liniê, aby formularz odbiera³ zdarzenia klawiatury
+
+            // Wyœwietl formularz wyboru poziomu trudnoœci
+            using (var difficultyForm = new DifficultySelectionForm())
+            {
+                if (difficultyForm.ShowDialog() == DialogResult.OK)
+                {
+                    difficultyLevel = difficultyForm.SelectedDifficulty;
+                }
+                else
+                {
+                    // Jeœli u¿ytkownik zamknie formularz bez wyboru, zamknij aplikacjê
+                    Application.Exit();
+                    return;
+                }
+            }
+
+            LoadConfiguration();
             playerPaddleY = (this.ClientSize.Height - PaddleHeight) / 2;
             opponentPaddleY = (this.ClientSize.Height - PaddleHeight) / 2;
             ballX = (this.ClientSize.Width - BallSize) / 2;
             ballY = (this.ClientSize.Height - BallSize) / 2;
             ResetBall();
-
         }
+
+        private void ShowResultsButton_Click(object? sender, EventArgs e)
+        {
+            ResultsForm resultsForm = new ResultsForm();
+            resultsForm.Show();
+        }
+
+        private void LoadConfiguration()
+        {
+            string configPath = "config.txt";
+            if (File.Exists(configPath))
+            {
+                var configLines = File.ReadAllLines(configPath);
+                foreach (var line in configLines)
+                {
+                    var parts = line.Split('=');
+                    if (parts.Length == 2)
+                    {
+                        switch (parts[0])
+                        {
+                            case "playerPaddleSpeed":
+                                playerPaddleSpeed = int.Parse(parts[1]);
+                                break;
+                            case "opponentPaddleSpeed":
+                                opponentPaddleSpeed = int.Parse(parts[1]);
+                                break;
+                            case "ballSpeedX":
+                                ballSpeedX = int.Parse(parts[1]);
+                                break;
+                            case "ballSpeedY":
+                                ballSpeedY = int.Parse(parts[1]);
+                                break;
+                            case "difficultyLevel":
+                                difficultyLevel = parts[1];
+                                break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Ustawienia domyœlne, jeœli plik konfiguracyjny nie istnieje
+                playerPaddleSpeed = 5;
+                opponentPaddleSpeed = 5;
+                ballSpeedX = 4;
+                ballSpeedY = 4;
+                difficultyLevel = "Normal";
+            }
+
+            // Dostosuj prêdkoœci na podstawie poziomu trudnoœci
+            switch (difficultyLevel)
+            {
+                case "Easy":
+                    playerPaddleSpeed = 4;
+                    opponentPaddleSpeed = 3;
+                    ballSpeedX = 3;
+                    ballSpeedY = 3;
+                    break;
+                case "Normal":
+                    playerPaddleSpeed = 5;
+                    opponentPaddleSpeed = 5;
+                    ballSpeedX = 4;
+                    ballSpeedY = 4;
+                    break;
+                case "Hard":
+                    playerPaddleSpeed = 6;
+                    opponentPaddleSpeed = 7;
+                    ballSpeedX = 5;
+                    ballSpeedY = 5;
+                    break;
+            }
+        }
+
         private bool moveUp;
         private bool moveDown;
+
         private void Form1_KeyDown(object? sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Up)
@@ -42,8 +136,6 @@ namespace pong
             {
                 moveDown = true;
             }
-            playerPaddleY = Math.Max(0, Math.Min(this.ClientSize.Height - PaddleHeight, playerPaddleY));
-            this.Invalidate();
         }
 
         private void Form1_KeyUp(object? sender, KeyEventArgs e)
@@ -57,6 +149,7 @@ namespace pong
                 moveDown = false;
             }
         }
+
         private void UpdatePaddlePosition()
         {
             if (moveUp && playerPaddleY > 0)
@@ -80,6 +173,7 @@ namespace pong
             UpdateOpponentPaddlePosition();
             Invalidate();
         }
+
         private void UpdateOpponentPaddlePosition()
         {
             if (ballY < opponentPaddleY + PaddleHeight / 2 && opponentPaddleY > 0)
@@ -159,6 +253,7 @@ namespace pong
 
             Invalidate();
         }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -172,10 +267,10 @@ namespace pong
             using (Brush brush = new SolidBrush(Color.White))
             {
                 g.FillRectangle(brush, PaddleOffset, playerPaddleY, PaddleWidth, PaddleHeight);
-
                 g.FillRectangle(brush, this.ClientSize.Width - PaddleOffset - PaddleWidth, opponentPaddleY, PaddleWidth, PaddleHeight);
             }
         }
+
         private void DrawBall(Graphics g)
         {
             using (Brush brush = new SolidBrush(Color.White))
@@ -207,8 +302,54 @@ namespace pong
             {
                 UpdatePaddlePosition();
                 UpdateBallPosition();
+                CheckGameEnd();
             };
             timer.Start();
+        }
+
+        private void CheckGameEnd()
+        {
+            // Przyk³adowy warunek zakoñczenia gry
+            if (playerScore >= 3 || opponentScore >= 3)
+            {
+                totalGames++; // Zwiêksz liczbê rozgrywek o 1
+                SaveResultsToFile();
+                Application.Exit();
+            }
+        }
+
+        private void SaveResultsToFile()
+        {
+            
+            string filePath = "game_results.txt";
+            List<string> results = new List<string>();
+
+            // Wczytaj istniej¹ce wyniki
+            if (File.Exists(filePath))
+            {
+                results.AddRange(File.ReadAllLines(filePath));
+            }
+
+            // Dodaj nowy wynik z ustawieniami
+            results.Add($"Gra {totalGames}:");
+            results.Add($"Poziom trudnoœci: {difficultyLevel}");
+            results.Add($"Prêdkoœæ paletki gracza: {playerPaddleSpeed}");
+            results.Add($"Prêdkoœæ paletki przeciwnika: {opponentPaddleSpeed}");
+            results.Add($"Prêdkoœæ pi³ki (X, Y): ({ballSpeedX}, {ballSpeedY})");
+            results.Add($"Wynik gracza: {playerScore}");
+            results.Add($"Wynik przeciwnika: {opponentScore}");
+            results.Add($"Liczba rozgrywek: {totalGames}");
+            results.Add(""); // Pusta linia dla oddzielenia wyników
+
+            // Zachowaj tylko trzy ostatnie wyniki
+            if (results.Count > 24) // 8 linii na grê, wiêc 3 gry to 24 linii
+            {
+                results = results.Skip(results.Count - 24).ToList();
+            }
+
+            // Zapisz wyniki do pliku
+            File.WriteAllLines(filePath, results);
+            
         }
     }
 }
